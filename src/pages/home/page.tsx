@@ -5,7 +5,7 @@ import ResumeForm from "@/components/resume/ResumeForm";
 import ResumePreview from "@/components/resume/ResumePreview";
 import TemplatePickerModal from "@/components/resume/TemplatePickerModal";
 
-export default function HomePage() {
+export default function HomePage({ onBackHome }: { onBackHome?: () => void }) {
   const { resume, update, updatePersonal, updateContact, setTemplate, updateTheme, moveSection, reset } =
     useResume();
   const [showTemplates, setShowTemplates] = useState(false);
@@ -31,33 +31,49 @@ export default function HomePage() {
         import("jspdf"),
       ]);
 
-      const canvas = await html2canvas(previewRef.current, {
-        scale: 3,
+      // previewRef points at the outer page box; its only child is the
+      // scaled content wrapper (see ResumePreview.tsx / pageFit.ts).
+      const container = previewRef.current;
+      const contentEl = container.firstElementChild as HTMLElement | null;
+      if (!contentEl) return;
+
+      // html2canvas is unreliable with CSS transforms, and our on-screen
+      // "fit to one page" uses transform: scale(). So we temporarily
+      // neutralize it, capture the resume at its true natural size, and
+      // let jsPDF (simple, reliable math) do the single-page fit instead —
+      // this is what keeps the PDF pixel-faithful to the live preview.
+      const prevTransform = contentEl.style.transform;
+      const prevOverflow = container.style.overflow;
+      contentEl.style.transform = "none";
+      container.style.overflow = "visible";
+
+      const canvas = await html2canvas(contentEl, {
+        scale: 2,
         useCORS: true,
         backgroundColor: "#ffffff",
       });
+
+      contentEl.style.transform = prevTransform;
+      container.style.overflow = prevOverflow;
 
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
-      const imgHeight = (canvas.height * pageWidth) / canvas.width;
 
-      if (imgHeight <= pageHeight) {
-        pdf.addImage(imgData, "PNG", 0, 0, pageWidth, imgHeight);
-      } else {
-        // Content taller than one page: slice across multiple pages
-        let heightLeft = imgHeight;
-        let position = 0;
-        pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
-        heightLeft -= pageHeight;
-        while (heightLeft > 0) {
-          position = heightLeft - imgHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
-          heightLeft -= pageHeight;
-        }
+      // Fit the whole captured page into one A4 sheet, preserving aspect
+      // ratio (mirrors the same uniform shrink the live preview applies).
+      const imgRatio = canvas.width / canvas.height;
+      let drawWidth = pageWidth;
+      let drawHeight = pageWidth / imgRatio;
+      if (drawHeight > pageHeight) {
+        drawHeight = pageHeight;
+        drawWidth = pageHeight * imgRatio;
       }
+      const x = (pageWidth - drawWidth) / 2;
+      const y = (pageHeight - drawHeight) / 2;
+
+      pdf.addImage(imgData, "PNG", x, y, drawWidth, drawHeight);
 
       const fileName = `${resume.personal.fullName || "resume"}.pdf`.replace(/\s+/g, "_");
       pdf.save(fileName);
@@ -76,12 +92,17 @@ export default function HomePage() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors">
       <header className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
         <div className="max-w-[1600px] mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onBackHome}
+            className="flex items-center gap-2"
+            aria-label="Back to home"
+          >
             <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center">
               <FileText className="w-5 h-5 text-white" />
             </div>
             <span className="font-bold text-lg text-slate-900 dark:text-white">Resume Builder</span>
-          </div>
+          </button>
           <div className="flex items-center gap-2">
             <button
               type="button"

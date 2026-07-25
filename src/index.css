@@ -15,13 +15,16 @@ body {
 .app-scroll::-webkit-scrollbar {
   width: 8px;
 }
+
 .app-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .app-scroll::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 999px;
 }
+
 .app-scroll::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
@@ -38,14 +41,81 @@ body {
   body * {
     visibility: hidden;
   }
+
   #resume-print-area,
   #resume-print-area * {
     visibility: visible;
   }
+
   #resume-print-area {
     position: absolute;
     left: 0;
     top: 0;
     width: 100%;
   }
+}
+
+/* Neon color-cycling utilities, used on the landing page */
+@keyframes neon-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes neon-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(217, 70, 239, 0.55), 0 0 45px rgba(56, 189, 248, 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 32px rgba(56, 189, 248, 0.65), 0 0 60px rgba(217, 70, 239, 0.45);
+  }
+}
+
+@keyframes float-slow {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+.neon-text {
+  background-image: linear-gradient(90deg, #f0abfc, #38bdf8, #a78bfa, #f472b6, #f0abfc);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: neon-shift 7s ease infinite;
+}
+
+.neon-button {
+  background-image: linear-gradient(90deg, #d946ef, #38bdf8, #a78bfa, #ec4899, #d946ef);
+  background-size: 300% 300%;
+  animation: neon-shift 5s ease infinite, neon-pulse 3s ease-in-out infinite;
+}
+
+.neon-border {
+  border-image: linear-gradient(90deg, #d946ef, #38bdf8, #a78bfa, #ec4899, #d946ef) 1;
+  background-image: linear-gradient(90deg, #d946ef, #38bdf8, #a78bfa, #ec4899, #d946ef);
+  background-size: 300% 300%;
+  animation: neon-shift 6s ease infinite;
+}
+
+.float-slow {
+  animation: float-slow 6s ease-in-out infinite;
 }
