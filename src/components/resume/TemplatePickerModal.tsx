@@ -24,7 +24,7 @@ export default function TemplatePickerModal({ data, currentTemplateId, onSelect,
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-slate-900 rounded-xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col"
+        className="neon-modal rounded-xl w-full max-w-4xl max-h-[85vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between px-6 py-5 border-b border-slate-100 dark:border-slate-800">
@@ -54,8 +54,11 @@ export default function TemplatePickerModal({ data, currentTemplateId, onSelect,
                   onSelect(tpl.id);
                   onClose();
                 }}
-                className={`text-left rounded-lg border-2 p-4 transition-colors ${active ? "border-accent bg-accent/5" : "border-slate-200 dark:border-slate-700 hover:border-accent/50"
+                className={`text-left rounded-lg border-2 p-4 transition-all ${active
+                    ? "border-fuchsia-400 dark:border-fuchsia-400"
+                    : "border-slate-200 dark:border-slate-700 hover:border-fuchsia-300 dark:hover:border-fuchsia-500/50"
                   }`}
+                style={active ? { boxShadow: "0 0 0 3px rgba(217, 70, 239, 0.15), 0 0 24px -8px rgba(56, 189, 248, 0.4)" } : undefined}
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[10px] font-bold uppercase tracking-wide text-accent">

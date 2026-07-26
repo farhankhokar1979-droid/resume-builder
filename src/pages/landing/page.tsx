@@ -13,7 +13,7 @@ const FEATURES = [
 
 export default function LandingPage({ onGetStarted }: Props) {
     return (
-        <div className="min-h-screen bg-slate-950 text-white overflow-hidden relative">
+        <div className="dark min-h-screen bg-slate-950 text-white overflow-hidden relative">
             {/* ambient glow blobs */}
             <div className="pointer-events-none absolute -top-40 -left-40 w-[32rem] h-[32rem] rounded-full bg-fuchsia-600/20 blur-[120px] float-slow" />
             <div
@@ -38,7 +38,7 @@ export default function LandingPage({ onGetStarted }: Props) {
                     Free forever. No account required.
                 </div>
 
-                <h1 className="text-5xl sm:text-6xl font-black leading-tight max-w-3xl">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-black leading-tight max-w-3xl">
                     Your next job starts with a <span className="neon-text">resume that stands out</span>
                 </h1>
 

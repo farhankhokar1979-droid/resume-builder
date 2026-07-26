@@ -55,7 +55,31 @@ body {
   }
 }
 
-/* Neon color-cycling utilities, used on the landing page */
+/* ── Neon color system ────────────────────────────────────────────────────
+   Light and dark mode use DIFFERENT hue sets on purpose (not just different
+   opacity of the same colors) so each mode has its own distinct identity:
+     Light mode → warm "sunset" neon: orange / hot pink / amber
+     Dark mode  → cool "cyberpunk" neon: cyan / magenta / violet
+   Everything below (text, buttons, cards, glow) reads from these three
+   variables, so both the landing page and the builder app stay in sync. */
+:root {
+  --glow-a: 249, 115, 22;
+  /* orange   */
+  --glow-b: 236, 72, 153;
+  /* hot pink */
+  --glow-c: 250, 204, 21;
+  /* amber    */
+}
+
+.dark {
+  --glow-a: 34, 211, 238;
+  /* cyan    */
+  --glow-b: 232, 121, 249;
+  /* magenta */
+  --glow-c: 139, 92, 246;
+  /* violet  */
+}
+
 @keyframes neon-shift {
   0% {
     background-position: 0% 50%;
@@ -74,11 +98,11 @@ body {
 
   0%,
   100% {
-    box-shadow: 0 0 20px rgba(217, 70, 239, 0.55), 0 0 45px rgba(56, 189, 248, 0.3);
+    box-shadow: 0 0 20px rgba(var(--glow-a), 0.6), 0 0 45px rgba(var(--glow-b), 0.35);
   }
 
   50% {
-    box-shadow: 0 0 32px rgba(56, 189, 248, 0.65), 0 0 60px rgba(217, 70, 239, 0.45);
+    box-shadow: 0 0 32px rgba(var(--glow-b), 0.7), 0 0 60px rgba(var(--glow-c), 0.45);
   }
 }
 
@@ -95,7 +119,11 @@ body {
 }
 
 .neon-text {
-  background-image: linear-gradient(90deg, #f0abfc, #38bdf8, #a78bfa, #f472b6, #f0abfc);
+  background-image: linear-gradient(90deg,
+      rgb(var(--glow-a)),
+      rgb(var(--glow-b)),
+      rgb(var(--glow-c)),
+      rgb(var(--glow-a)));
   background-size: 300% 300%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -104,18 +132,122 @@ body {
 }
 
 .neon-button {
-  background-image: linear-gradient(90deg, #d946ef, #38bdf8, #a78bfa, #ec4899, #d946ef);
+  background-image: linear-gradient(90deg,
+      rgb(var(--glow-a)),
+      rgb(var(--glow-b)),
+      rgb(var(--glow-c)),
+      rgb(var(--glow-a)));
   background-size: 300% 300%;
   animation: neon-shift 5s ease infinite, neon-pulse 3s ease-in-out infinite;
 }
 
-.neon-border {
-  border-image: linear-gradient(90deg, #d946ef, #38bdf8, #a78bfa, #ec4899, #d946ef) 1;
-  background-image: linear-gradient(90deg, #d946ef, #38bdf8, #a78bfa, #ec4899, #d946ef);
+.float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+/* ── Theme-aware neon UI accents for the builder app ─────────────────────
+   A visible colored left-edge bar + glow shadow on every card, using
+   whichever palette (--glow-*) is active for the current mode. */
+.neon-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid rgba(var(--glow-a), 0.3);
+  border-left: 4px solid rgb(var(--glow-a));
+  box-shadow: 0 6px 20px -10px rgba(var(--glow-b), 0.45);
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+
+.neon-card:hover {
+  border-left-color: rgb(var(--glow-b));
+  box-shadow: 0 10px 28px -8px rgba(var(--glow-b), 0.55), 0 0 0 1px rgba(var(--glow-a), 0.25);
+  transform: translateY(-2px);
+}
+
+.dark .neon-card {
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(var(--glow-a), 0.3);
+  border-left: 4px solid rgb(var(--glow-a));
+  box-shadow: 0 0 26px -6px rgba(var(--glow-a), 0.45);
+}
+
+.dark .neon-card:hover {
+  border-left-color: rgb(var(--glow-b));
+  box-shadow: 0 0 34px -4px rgba(var(--glow-b), 0.6), 0 0 55px -10px rgba(var(--glow-c), 0.4);
+}
+
+.neon-modal {
+  background: #ffffff;
+  box-shadow: 0 20px 60px -20px rgba(var(--glow-a), 0.5), 0 0 0 1px rgba(var(--glow-b), 0.15);
+}
+
+.dark .neon-modal {
+  background: #0b1220;
+  box-shadow: 0 20px 70px -20px rgba(var(--glow-a), 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.neon-strip {
+  height: 3px;
+  background-image: linear-gradient(90deg,
+      rgb(var(--glow-a)),
+      rgb(var(--glow-b)),
+      rgb(var(--glow-c)),
+      rgb(var(--glow-a)));
   background-size: 300% 300%;
   animation: neon-shift 6s ease infinite;
 }
 
-.float-slow {
-  animation: float-slow 6s ease-in-out infinite;
+.neon-panel {
+  background: rgba(var(--glow-a), 0.05);
+  border: 1px solid rgba(var(--glow-a), 0.15);
+}
+
+.dark .neon-panel {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Ambient glow blobs behind the whole app. Visible (softly) in both modes,
+   using each mode's own palette — this is what shows through the gutters
+   around the (semi-transparent) cards above. */
+.app-glow-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+  transition: opacity 0.5s ease;
+}
+
+.dark .app-glow-bg {
+  opacity: 0.9;
+}
+
+.app-glow-bg .blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+}
+
+.app-glow-bg .blob-a {
+  top: -8rem;
+  left: -8rem;
+  width: 26rem;
+  height: 26rem;
+  background: rgba(var(--glow-a), 0.35);
+}
+
+.app-glow-bg .blob-b {
+  top: 30%;
+  right: -8rem;
+  width: 26rem;
+  height: 26rem;
+  background: rgba(var(--glow-b), 0.3);
+}
+
+.app-glow-bg .blob-c {
+  bottom: -6rem;
+  left: 30%;
+  width: 24rem;
+  height: 24rem;
+  background: rgba(var(--glow-c), 0.25);
 }

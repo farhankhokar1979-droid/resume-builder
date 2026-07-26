@@ -89,25 +89,34 @@ export default function HomePage({ onBackHome }: { onBackHome?: () => void }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors">
-      <header className="sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-        <div className="max-w-[1600px] mx-auto px-6 h-16 flex items-center justify-between">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-rose-50 to-amber-50 dark:from-slate-950 dark:via-slate-950 dark:to-slate-950 transition-colors relative">
+      <div className="app-glow-bg">
+        <div className="blob blob-a" />
+        <div className="blob blob-b" />
+        <div className="blob blob-c" />
+      </div>
+
+      <header className="sticky top-0 z-30 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border-b border-slate-200 dark:border-white/10">
+        <div className="neon-strip" />
+        <div className="max-w-[1600px] mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2">
           <button
             type="button"
             onClick={onBackHome}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 shrink-0"
             aria-label="Back to home"
           >
-            <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center">
+            <div className="w-9 h-9 rounded-lg neon-button flex items-center justify-center shrink-0">
               <FileText className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-lg text-slate-900 dark:text-white">Resume Builder</span>
+            <span className="font-bold text-lg text-slate-900 dark:text-white hidden sm:inline">
+              Resume Builder
+            </span>
           </button>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto app-scroll">
             <button
               type="button"
               onClick={() => setDark((d) => !d)}
-              className="p-2 rounded-md text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="p-2 rounded-md text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10 shrink-0"
               aria-label="Toggle dark mode"
             >
               {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -115,31 +124,31 @@ export default function HomePage({ onBackHome }: { onBackHome?: () => void }) {
             <button
               type="button"
               onClick={() => setShowTemplates(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-md text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-2 rounded-md text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10 shrink-0"
             >
-              <LayoutTemplate className="w-4 h-4" /> Templates
+              <LayoutTemplate className="w-4 h-4" /> <span className="hidden sm:inline">Templates</span>
             </button>
             <button
               type="button"
               onClick={handleReset}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-md text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-2 rounded-md text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10 shrink-0"
             >
-              <RotateCcw className="w-4 h-4" /> Reset
+              <RotateCcw className="w-4 h-4" /> <span className="hidden sm:inline">Reset</span>
             </button>
             <button
               type="button"
               onClick={handleDownloadPdf}
               disabled={downloading}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-semibold text-white bg-accent hover:bg-accent-dark disabled:opacity-60"
+              className="neon-button flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-md text-sm font-semibold text-white hover:scale-105 active:scale-100 transition-transform disabled:opacity-60 disabled:hover:scale-100 shrink-0"
             >
               {downloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-              Download PDF
+              <span className="hidden sm:inline">Download PDF</span>
             </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-[1600px] mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <main className="relative z-10 max-w-[1600px] mx-auto px-4 sm:px-6 py-6 sm:py-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
         <section>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Edit Your Resume</h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-1 mb-5">
@@ -155,10 +164,10 @@ export default function HomePage({ onBackHome }: { onBackHome?: () => void }) {
           />
         </section>
 
-        <section className="lg:sticky lg:top-20 self-start max-h-[calc(100vh-5.5rem)] overflow-y-auto app-scroll pb-2">
+        <section className="lg:sticky lg:top-20 self-start lg:max-h-[calc(100vh-5.5rem)] lg:overflow-y-auto app-scroll pb-2">
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Preview</h2>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-1 mb-5">See how your resume looks in real-time</p>
-          <div className="bg-slate-100 dark:bg-slate-900 rounded-lg p-6">
+          <div className="neon-panel rounded-lg p-4 sm:p-6">
             <div className="max-w-[560px] mx-auto">
               <ResumePreview ref={previewRef} data={resume} />
             </div>
