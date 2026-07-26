@@ -251,3 +251,126 @@ body {
   height: 24rem;
   background: rgba(var(--glow-c), 0.25);
 }
+
+/* ── Walking character (coded, not a 3D model) ───────────────────────────
+   Legs/arms swing via rotation around their top pivot, body bobs slightly,
+   and an optional horizontal translate makes it "walk across" for the
+   loading transition. Colors come from the same --glow-* theme variables
+   as everything else, so it re-colors automatically with light/dark mode. */
+@keyframes char-leg-a {
+
+  0%,
+  100% {
+    transform: rotate(28deg);
+  }
+
+  50% {
+    transform: rotate(-28deg);
+  }
+}
+
+@keyframes char-leg-b {
+
+  0%,
+  100% {
+    transform: rotate(-28deg);
+  }
+
+  50% {
+    transform: rotate(28deg);
+  }
+}
+
+@keyframes char-arm-a {
+
+  0%,
+  100% {
+    transform: rotate(-24deg);
+  }
+
+  50% {
+    transform: rotate(24deg);
+  }
+}
+
+@keyframes char-arm-b {
+
+  0%,
+  100% {
+    transform: rotate(24deg);
+  }
+
+  50% {
+    transform: rotate(-24deg);
+  }
+}
+
+@keyframes char-bob {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes char-walk-across {
+  0% {
+    transform: translateX(-15vw);
+  }
+
+  100% {
+    transform: translateX(115vw);
+  }
+}
+
+@keyframes loading-bar-fill {
+  0% {
+    width: 0%;
+  }
+
+  100% {
+    width: 100%;
+  }
+}
+
+.char-leg-left {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+  animation: char-leg-a 0.55s ease-in-out infinite;
+}
+
+.char-leg-right {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+  animation: char-leg-b 0.55s ease-in-out infinite;
+}
+
+.char-arm-left {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+  animation: char-arm-a 0.55s ease-in-out infinite;
+}
+
+.char-arm-right {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+  animation: char-arm-b 0.55s ease-in-out infinite;
+}
+
+.char-body-bob {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: char-bob 0.55s ease-in-out infinite;
+}
+
+.char-walking-across {
+  animation: char-walk-across 2.4s linear forwards;
+}
+
+.loading-bar-fill {
+  animation: loading-bar-fill 2.4s ease forwards;
+}

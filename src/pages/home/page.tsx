@@ -1,26 +1,22 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { FileText, LayoutTemplate, RotateCcw, Download, Loader2, Sun, Moon } from "lucide-react";
 import { useResume } from "@/hooks/useResume";
 import ResumeForm from "@/components/resume/ResumeForm";
 import ResumePreview from "@/components/resume/ResumePreview";
 import TemplatePickerModal from "@/components/resume/TemplatePickerModal";
 
-export default function HomePage({ onBackHome }: { onBackHome?: () => void }) {
+interface Props {
+  onBackHome?: () => void;
+  dark: boolean;
+  onToggleDark: () => void;
+}
+
+export default function HomePage({ onBackHome, dark, onToggleDark }: Props) {
   const { resume, update, updatePersonal, updateContact, setTemplate, updateTheme, moveSection, reset } =
     useResume();
   const [showTemplates, setShowTemplates] = useState(false);
   const [downloading, setDownloading] = useState(false);
-  const [dark, setDark] = useState(() => {
-    const saved = localStorage.getItem("theme");
-    if (saved) return saved === "dark";
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
-  });
   const previewRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
-    localStorage.setItem("theme", dark ? "dark" : "light");
-  }, [dark]);
 
   async function handleDownloadPdf() {
     if (!previewRef.current) return;
@@ -115,7 +111,7 @@ export default function HomePage({ onBackHome }: { onBackHome?: () => void }) {
           <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto app-scroll">
             <button
               type="button"
-              onClick={() => setDark((d) => !d)}
+              onClick={onToggleDark}
               className="p-2 rounded-md text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10 shrink-0"
               aria-label="Toggle dark mode"
             >
