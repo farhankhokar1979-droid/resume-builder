@@ -23,7 +23,7 @@ A free, no-signup, no-database resume builder that lets anyone create a polished
 
 🔗 **Live URL:** https://resume-builder-rosy-three-39.vercel.app/
 
-🔗 **GitHub repository:** [ADD YOUR PUBLIC GITHUB REPO URL HERE]
+🔗 **GitHub repository:** https://github.com/farhankhokar1979-droid/resume-builder/
 
 > Before submitting: open your repo link in an incognito window to confirm it does **not** ask for login.
 
@@ -97,29 +97,17 @@ Follow these rules exactly:
 
 ## f. Screenshots
 
-> Add at least 3 screenshots below. Take them from your **live deployed app**, save them into a `/screenshots` folder in this repo, and update the paths below to match.
-
 ![Landing page](./screenshots/landing.png)
 *Landing page with the animated mascot and neon branding.*
-
-
 
 ![Resume editor — light mode](./screenshots/editor-light.png)
 *The editing form and live preview, light mode.*
 
-
-
-
-
 ![Resume editor — dark mode](./screenshots/editor-dark.png)
 *The editing form and live preview, dark mode.*
 
-
 ![Template picker](./screenshots/template-picker.png)
 *Choosing between the 13 available templates.*
-
-
-
 
 ## g. How to run this project locally
 
