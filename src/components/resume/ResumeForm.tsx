@@ -23,10 +23,12 @@ import {
   ArrowUp,
   ArrowDown,
   Loader2,
+  Sparkles,
 } from "lucide-react";
 import { ACCENT_COLORS, FONT_PAIRINGS, SECTION_LABELS, type ResumeData, type SectionId } from "@/types/resume";
 import { makeId } from "@/hooks/useResume";
 import { fileToCompressedDataUrl } from "@/lib/image";
+import { improveWithAi } from "@/lib/aiAssist";
 
 interface Props {
   resume: ResumeData;
@@ -113,6 +115,32 @@ function AddButton({ onClick, label }: { onClick: () => void; label: string }) {
     >
       <Plus className="w-4 h-4" />
       {label}
+    </button>
+  );
+}
+
+function AiImproveButton({
+  onClick,
+  loading,
+  label = "Improve with AI",
+}: {
+  onClick: () => void;
+  loading: boolean;
+  label?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={loading}
+      className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-fuchsia-300 dark:hover:border-fuchsia-500/50 disabled:opacity-60 transition-colors"
+    >
+      {loading ? (
+        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+      ) : (
+        <Sparkles className="w-3.5 h-3.5" style={{ color: "rgb(var(--glow-a))" }} />
+      )}
+      {loading ? "Improving…" : label}
     </button>
   );
 }
@@ -296,6 +324,46 @@ export default function ResumeForm({
   updateTheme,
   moveSection,
 }: Props) {
+  const [aiLoadingId, setAiLoadingId] = useState<string | null>(null);
+  const [aiError, setAiError] = useState<{ id: string; message: string } | null>(null);
+
+  async function handleImproveSummary() {
+    if (!resume.personal.summary.trim()) return;
+    setAiError(null);
+    setAiLoadingId("summary");
+    try {
+      const improved = await improveWithAi("summary", resume.personal.summary);
+      updatePersonal({ summary: improved });
+    } catch (err) {
+      setAiError({ id: "summary", message: err instanceof Error ? err.message : "Something went wrong." });
+    } finally {
+      setAiLoadingId(null);
+    }
+  }
+
+  async function handleImproveBullets(xpId: string) {
+    const xp = resume.experience.find((x) => x.id === xpId);
+    const joined = xp?.bullets.filter(Boolean).join("\n") ?? "";
+    if (!joined.trim()) return;
+    setAiError(null);
+    setAiLoadingId(xpId);
+    try {
+      const improved = await improveWithAi("bullets", joined);
+      const lines = improved
+        .split("\n")
+        .map((l) => l.replace(/^[-•*\d.]+\s*/, "").trim())
+        .filter(Boolean);
+      update(
+        "experience",
+        resume.experience.map((x) => (x.id === xpId ? { ...x, bullets: lines } : x))
+      );
+    } catch (err) {
+      setAiError({ id: xpId, message: err instanceof Error ? err.message : "Something went wrong." });
+    } finally {
+      setAiLoadingId(null);
+    }
+  }
+
   return (
     <div className="space-y-4">
       {/* Design & Theme */}
@@ -334,6 +402,12 @@ export default function ResumeForm({
             value={resume.personal.summary}
             onChange={(e) => updatePersonal({ summary: e.target.value })}
           />
+          <div className="mt-2 flex items-center gap-2">
+            <AiImproveButton onClick={handleImproveSummary} loading={aiLoadingId === "summary"} />
+          </div>
+          {aiError?.id === "summary" && (
+            <p className="mt-1 text-xs text-red-500">{aiError.message}</p>
+          )}
         </Field>
       </Section>
 
@@ -625,6 +699,14 @@ export default function ResumeForm({
                 )
               }
             />
+            <div className="mt-2 flex items-center gap-2">
+              <AiImproveButton
+                onClick={() => handleImproveBullets(xp.id)}
+                loading={aiLoadingId === xp.id}
+                label="Improve bullets with AI"
+              />
+            </div>
+            {aiError?.id === xp.id && <p className="mt-1 text-xs text-red-500">{aiError.message}</p>}
           </div>
         ))}
         <AddButton
