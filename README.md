@@ -21,7 +21,7 @@ A free, no-signup, no-database resume builder that lets anyone create a polished
 
 ## b. Live app
 
-🔗 **Live URL:** [ADD YOUR DEPLOYED VERCEL URL HERE]
+🔗 **Live URL:** https://resume-builder-rosy-three-39.vercel.app/
 
 🔗 **GitHub repository:** [ADD YOUR PUBLIC GITHUB REPO URL HERE]
 
