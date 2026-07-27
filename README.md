@@ -1,4 +1,4 @@
-# Resume Builder
+﻿# Resume Builder
 
 A free, no-signup, no-database resume builder that lets anyone create a polished, professional resume in minutes — pick a template, personalize it, and download a PDF. Everything runs entirely in the browser.
 
@@ -102,16 +102,24 @@ Follow these rules exactly:
 ![Landing page](./screenshots/landing.png)
 *Landing page with the animated mascot and neon branding.*
 
+
+
 ![Resume editor — light mode](./screenshots/editor-light.png)
 *The editing form and live preview, light mode.*
+
+
+
+
 
 ![Resume editor — dark mode](./screenshots/editor-dark.png)
 *The editing form and live preview, dark mode.*
 
+
 ![Template picker](./screenshots/template-picker.png)
 *Choosing between the 13 available templates.*
 
----
+
+
 
 ## g. How to run this project locally
 
