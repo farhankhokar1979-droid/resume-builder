@@ -4,7 +4,14 @@
 // environment variable in your Vercel project settings (never commit it).
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+
+// llama-3.3-70b-versatile and llama-3.1-8b-instant were both deprecated by
+// Groq on 2026-06-17. Groq retires/renames models periodically, so instead
+// of hardcoding one model, we try a short list in order — if the first
+// fails (e.g. it gets deprecated again in the future), we automatically
+// retry with the next one before giving up. This is what stops a single
+// Groq-side model change from silently breaking the whole feature again.
+const GROQ_MODELS = ["openai/gpt-oss-120b", "openai/gpt-oss-20b"];
 
 const SYSTEM_PROMPT = `You are a professional resume-writing assistant helping a job seeker improve their resume text.
 Follow these rules exactly:
@@ -23,6 +30,34 @@ interface VercelLikeRequest {
 interface VercelLikeResponse {
     status: (code: number) => VercelLikeResponse;
     json: (body: unknown) => void;
+}
+
+async function callGroq(model: string, apiKey: string, mode: string, input: string) {
+    return fetch(GROQ_URL, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+            model,
+            messages: [
+                { role: "system", content: SYSTEM_PROMPT },
+                { role: "user", content: `mode: ${mode}\n\ninput:\n${input}` },
+            ],
+            temperature: 0.4,
+            max_tokens: 300,
+        }),
+    });
+}
+
+function extractProviderMessage(detail: string): string {
+    try {
+        const parsed = JSON.parse(detail);
+        return parsed?.error?.message || detail;
+    } catch {
+        return detail;
+    }
 }
 
 export default async function handler(req: VercelLikeRequest, res: VercelLikeResponse) {
@@ -53,40 +88,34 @@ export default async function handler(req: VercelLikeRequest, res: VercelLikeRes
         return;
     }
 
-    try {
-        const groqRes = await fetch(GROQ_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({
-                model: GROQ_MODEL,
-                messages: [
-                    { role: "system", content: SYSTEM_PROMPT },
-                    { role: "user", content: `mode: ${mode}\n\ninput:\n${input}` },
-                ],
-                temperature: 0.4,
-                max_tokens: 300,
-            }),
-        });
+    let lastError = "Unknown error.";
 
-        if (!groqRes.ok) {
-            const detail = await groqRes.text();
-            res.status(502).json({ error: "AI provider error", detail });
+    for (const model of GROQ_MODELS) {
+        try {
+            const groqRes = await callGroq(model, apiKey, mode, input);
+
+            if (!groqRes.ok) {
+                const detail = await groqRes.text();
+                lastError = extractProviderMessage(detail);
+                // Try the next model in the list instead of failing immediately.
+                continue;
+            }
+
+            const data = await groqRes.json();
+            const text = data?.choices?.[0]?.message?.content?.trim();
+
+            if (!text) {
+                lastError = "AI provider returned no content.";
+                continue;
+            }
+
+            res.status(200).json({ result: text });
             return;
+        } catch {
+            lastError = "Unexpected error while contacting the AI provider.";
         }
-
-        const data = await groqRes.json();
-        const text = data?.choices?.[0]?.message?.content?.trim();
-
-        if (!text) {
-            res.status(502).json({ error: "AI provider returned no content." });
-            return;
-        }
-
-        res.status(200).json({ result: text });
-    } catch {
-        res.status(500).json({ error: "Unexpected server error while contacting the AI provider." });
     }
+
+    // Every model in the list failed.
+    res.status(502).json({ error: `AI provider error: ${lastError}` });
 }
