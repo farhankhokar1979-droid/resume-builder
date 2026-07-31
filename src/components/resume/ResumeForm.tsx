@@ -29,6 +29,7 @@ import { ACCENT_COLORS, FONT_PAIRINGS, SECTION_LABELS, type ResumeData, type Sec
 import { makeId } from "@/hooks/useResume";
 import { fileToCompressedDataUrl } from "@/lib/image";
 import { improveWithAi } from "@/lib/aiAssist";
+import { PROFESSION_NAMES, getFallbackByProfession } from "@/lib/professionFallbacks";
 
 interface Props {
   resume: ResumeData;
@@ -142,6 +143,38 @@ function AiImproveButton({
       )}
       {loading ? "Improving…" : label}
     </button>
+  );
+}
+
+/**
+ * Shown when an AI request fails. Lets the person pick a profession and
+ * instantly insert hand-written fallback text instead, so a down/rate-
+ * limited AI provider never fully blocks progress.
+ */
+function FallbackPicker({ onPick }: { onPick: (profession: string) => void }) {
+  return (
+    <div className="mt-1.5 flex items-center gap-2">
+      <span className="text-xs text-slate-500 dark:text-slate-400 shrink-0">
+        Or use an example for:
+      </span>
+      <select
+        defaultValue=""
+        onChange={(e) => {
+          if (e.target.value) onPick(e.target.value);
+          e.target.value = "";
+        }}
+        className="text-xs rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 py-1 text-slate-700 dark:text-slate-200"
+      >
+        <option value="" disabled>
+          Choose a profession…
+        </option>
+        {PROFESSION_NAMES.map((name) => (
+          <option key={name} value={name}>
+            {name}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 }
 
@@ -406,7 +439,18 @@ export default function ResumeForm({
             <AiImproveButton onClick={handleImproveSummary} loading={aiLoadingId === "summary"} />
           </div>
           {aiError?.id === "summary" && (
-            <p className="mt-1 text-xs text-red-500">{aiError.message}</p>
+            <div className="mt-1">
+              <p className="text-xs text-red-500">{aiError.message}</p>
+              <FallbackPicker
+                onPick={(profession) => {
+                  const fb = getFallbackByProfession(profession);
+                  if (fb) {
+                    updatePersonal({ summary: fb.summary });
+                    setAiError(null);
+                  }
+                }}
+              />
+            </div>
           )}
         </Field>
       </Section>
@@ -706,7 +750,23 @@ export default function ResumeForm({
                 label="Improve bullets with AI"
               />
             </div>
-            {aiError?.id === xp.id && <p className="mt-1 text-xs text-red-500">{aiError.message}</p>}
+            {aiError?.id === xp.id && (
+              <div className="mt-1">
+                <p className="text-xs text-red-500">{aiError.message}</p>
+                <FallbackPicker
+                  onPick={(profession) => {
+                    const fb = getFallbackByProfession(profession);
+                    if (fb) {
+                      update(
+                        "experience",
+                        resume.experience.map((x) => (x.id === xp.id ? { ...x, bullets: fb.bullets } : x))
+                      );
+                      setAiError(null);
+                    }
+                  }}
+                />
+              </div>
+            )}
           </div>
         ))}
         <AddButton

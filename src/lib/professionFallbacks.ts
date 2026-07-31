@@ -664,6 +664,16 @@ export const PROFESSION_FALLBACKS: ProfessionFallback[] = [
     },
 ];
 
+/** Alphabetically sorted list of profession titles, for the picker dropdown. */
+export const PROFESSION_NAMES: string[] = [...PROFESSION_FALLBACKS.map((p) => p.title)].sort((a, b) =>
+    a.localeCompare(b)
+);
+
+/** Looks up a fallback entry by its exact profession title. */
+export function getFallbackByProfession(title: string): ProfessionFallback | undefined {
+    return PROFESSION_FALLBACKS.find((p) => p.title === title);
+}
+
 /** Simple case-insensitive search helper for the profession picker UI. */
 export function searchProfessionFallbacks(query: string): ProfessionFallback[] {
     const q = query.trim().toLowerCase();
